@@ -15,7 +15,7 @@ class SplashScreen extends StatelessWidget {
       body: Stack(
         children: [
           Container(color: const Color.fromARGB(255, 246, 246, 246),width: double.infinity,height: double.infinity,child: Align(alignment: Alignment.bottomRight,child: Image.asset('asset/grocery_background.jpg'))),
-           const Align(
+          const Align(
             alignment: Alignment.center,
             child: Text(
               'Grocery Plus',
@@ -38,6 +38,6 @@ class SplashScreen extends StatelessWidget {
   }
 
   void startTimer(BuildContext _context){
-    Timer(const Duration(),() => Navigator.pushReplacement(_context, MaterialPageRoute(builder: (context) => const MainScreen())));
+    Timer(const Duration(seconds: 3), () => Navigator.pushReplacement(_context, MaterialPageRoute(builder: (context) => const MainScreen())));
   }
 }
