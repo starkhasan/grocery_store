@@ -6,6 +6,7 @@ import 'package:grocery_plus/util/home_loading.dart';
 import 'package:grocery_plus/view/notification_screen.dart';
 import 'package:grocery_plus/view/product_details.dart';
 import 'package:grocery_plus/util/helper.dart';
+import 'package:grocery_plus/view/product_screen.dart';
 import 'package:provider/provider.dart';
 
 class GroceryHome extends StatelessWidget {
@@ -43,10 +44,6 @@ class _MainScreenState extends State<MainScreen> {
       builder: (context,provider,child){
         return Scaffold(
           appBar: PreferredSize(preferredSize: const Size.fromHeight(0),child: AppBar()),
-          // floatingActionButton: FloatingActionButton(
-          //   onPressed: () => provider.getProducts('veg'),
-          //   child: const Icon(Icons.add)
-          // ),
           body: Container(
             padding: const EdgeInsets.only(left: 10,right: 10),
             child: SingleChildScrollView(
@@ -112,7 +109,8 @@ class _MainScreenState extends State<MainScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (BuildContext context,int index){
                       return InkWell(
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetails(imagePath: Helper.listImageURL[index], productDetails: Helper.listProductName[index], productId: '10'))),
+                        //onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetails(imagePath: Helper.listImageURL[index], productDetails: Helper.listProductName[index], productId: '10'))),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductScreen(productName: provider.listProducts[index].name, productId: provider.listProducts[index].id))),
                         child: Container(
                           margin: const EdgeInsets.only(top: 4,left: 4,bottom: 4,right: 4),
                           decoration: const BoxDecoration(color: Colors.white,borderRadius: BorderRadius.all(Radius.circular(5.0)),boxShadow: [BoxShadow(blurRadius: 2.0,color: Color(0xFFE0E0E0))]),
