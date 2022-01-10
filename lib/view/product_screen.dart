@@ -49,7 +49,8 @@ class _MainScreenState extends State<MainScreen> {
                 backgroundColor: Colors.white,
                 floating: true,
                 snap: true,
-                automaticallyImplyLeading: false
+                leading: IconButton(onPressed: () => Navigator.pop(context),icon: const Icon(Icons.arrow_back,color:Colors.black)),
+                titleSpacing: 0,
               ),
               provider.loading 
               ? const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
@@ -81,7 +82,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Aashirvaad Whole Wheat Atta 10 kg',style: TextStyle(fontSize: 14)),
+                    Text(provider.listProduct[index].name,style: const TextStyle(fontSize: 14)),
                     const SizedBox(height: 5),
                     const Text('\u{20B9}180',style: TextStyle(fontSize: 14,color: Colors.grey,fontWeight: FontWeight.normal,decoration: TextDecoration.lineThrough)),
                     const SizedBox(height: 4),
