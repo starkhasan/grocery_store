@@ -7,6 +7,7 @@ class GroceryHomePovider extends ChangeNotifier {
   bool _isLoading = false;
   bool get loading => _isLoading;
   List<ProductModel> listProducts = [];
+  List<ProductModel> originalListProduct = [];
   List<String> listCategories = [];
   var products = FirebaseFirestore.instance.collection('grocery');
   var databaseReferene = FirebaseDatabase.instance.ref().child('covid_info');
@@ -25,8 +26,23 @@ class GroceryHomePovider extends ChangeNotifier {
         var data = item.data() as Map;
         listProducts.add(ProductModel(id: item.id, name: data['name'], imageUrl: data['imageUrl']));
       }
+      originalListProduct.addAll(listProducts);
     });
     _isLoading = false;
+    notifyListeners();
+  }
+
+  searchProducts(String productName){
+    listProducts.clear();
+    if(productName.isNotEmpty){
+      for(var item in originalListProduct){
+        if(item.name.toLowerCase().startsWith(productName.toLowerCase())){
+          listProducts.add(item);
+        }
+      }
+    }else{
+      listProducts.addAll(originalListProduct);
+    }
     notifyListeners();
   }
 }

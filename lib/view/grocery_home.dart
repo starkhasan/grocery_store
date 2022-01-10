@@ -88,10 +88,11 @@ class _MainScreenState extends State<MainScreen> {
                       children: [
                         const Icon(Icons.search),
                         const SizedBox(width: 8),
-                        const Expanded(
+                        Expanded(
                           child: TextField(
-                            style: TextStyle(fontSize: 14),
-                            decoration: InputDecoration.collapsed(hintText: 'Search Anything',hintStyle: TextStyle(fontSize: 14))
+                            style: const TextStyle(fontSize: 14),
+                            decoration: const InputDecoration.collapsed(hintText: 'Search Anything',hintStyle: TextStyle(fontSize: 14)),
+                            onChanged: (value) => provider.searchProducts(value)
                           )
                         ),
                         InkWell(
@@ -101,8 +102,8 @@ class _MainScreenState extends State<MainScreen> {
                       ]
                     )
                   ),
-                  provider.loading
-                  ? const HomeLoading(message: 'Loading...')
+                  provider.loading || provider.listProducts.isEmpty
+                  ? HomeLoading(isLoading: provider.loading)
                   : GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: (MediaQuery.of(context).orientation == Orientation.landscape) ? 2 : 2),
                     itemCount: provider.listProducts.length,
@@ -185,10 +186,9 @@ class _MainScreenState extends State<MainScreen> {
                 )
               ]
             )
-          ),
+          )
         );
       }
     );
   }
-
 }
