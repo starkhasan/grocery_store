@@ -6,12 +6,20 @@ import 'package:grocery_plus/model/product_model.dart';
 class GroceryHomePovider extends ChangeNotifier {
   bool _isLoading = false;
   bool get loading => _isLoading;
-  List<ProductModel> listProducts = []; 
+  List<ProductModel> listProducts = [];
+  List<String> listCategories = [];
   var products = FirebaseFirestore.instance.collection('grocery');
   var databaseReferene = FirebaseDatabase.instance.ref().child('covid_info');
+
   Future<void> getProducts(String tag) async {
     _isLoading = true;
     notifyListeners();
+    await products.doc('categories').get().then((DocumentSnapshot value) {
+      var data = value.data() as Map;
+      for(var item in data['productCategories'].split('/')){
+        listCategories.add(item);
+      }
+    });
     await products.doc('products').collection(tag).get().then((QuerySnapshot value) {
       for (var item in value.docs) {
         var data = item.data() as Map;

@@ -59,4 +59,5 @@ class Helper {
     'asset/crypto.png'
   ];
   var groceryMoreItems = ['My Account','My Wishlist','Saved Addresses','All Orders','My Rewards'];
+
 }

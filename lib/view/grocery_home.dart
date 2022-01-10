@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_plus/provider/grocery_home_provider.dart';
+import 'package:grocery_plus/util/dialog_close_button.dart';
 import 'package:grocery_plus/util/home_loading.dart';
 import 'package:grocery_plus/view/notification_screen.dart';
 import 'package:grocery_plus/view/product_details.dart';
@@ -41,6 +43,10 @@ class _MainScreenState extends State<MainScreen> {
       builder: (context,provider,child){
         return Scaffold(
           appBar: PreferredSize(preferredSize: const Size.fromHeight(0),child: AppBar()),
+          // floatingActionButton: FloatingActionButton(
+          //   onPressed: () => provider.getProducts('veg'),
+          //   child: const Icon(Icons.add)
+          // ),
           body: Container(
             padding: const EdgeInsets.only(left: 10,right: 10),
             child: SingleChildScrollView(
@@ -89,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
                           )
                         ),
                         InkWell(
-                          onTap: () => showFilterDialog(),
+                          onTap: () => showFilterDialog(context,provider.listCategories),
                           child: const Icon(Icons.filter_list_alt),
                         )
                       ]
@@ -131,7 +137,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  showFilterDialog(){
+  showFilterDialog(BuildContext context,List<String> items){
     //Remove focus from a single TextField in the Container 
     FocusScope.of(context).unfocus();
     //Dialog
@@ -144,6 +150,41 @@ class _MainScreenState extends State<MainScreen> {
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.35,
             decoration: const BoxDecoration(color: Colors.white,borderRadius: BorderRadius.only(topLeft: Radius.circular(15),topRight: Radius.circular(15))),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10,right: 10,top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text('Filter Products',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 13)),
+                      GestureDetector(onTap: () => Navigator.pop(context),child: const DialogCloseButton())
+                    ]
+                  )
+                ),
+                Expanded(
+                  child: CupertinoPicker(
+                    itemExtent: 30,
+                    useMagnifier: true,
+                    magnification: 1.2,
+                    children: List.generate(items.length, (index) => Center(child: Text(items[index],style: const TextStyle(fontSize: 12)))),
+                    onSelectedItemChanged: (value){
+
+                    }
+                  )
+                ),
+                GestureDetector(
+                  onTap: () => print('Click Here to Publish Review'),
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 5,left: 10,right: 10,bottom: 10),
+                    padding: const EdgeInsets.only(top: 8,bottom: 8),
+                    decoration: const BoxDecoration(color: Colors.green,borderRadius: BorderRadius.all(Radius.circular(5))),
+                    child: const Center(child: Text('Submit',style: TextStyle(color: Colors.white,fontWeight: FontWeight.normal,fontSize:  12)))
+                  )
+                )
+              ]
+            )
           ),
         );
       }
