@@ -10,19 +10,19 @@ class SharedPref {
     return _sharedPreferences;
   }
 
-  void setLogin(bool isLogin){
+  static setLogin(bool isLogin){
     _sharedPreferences!.setBool(Constants.login, isLogin);
   }
 
-  bool getLogin(){
+  static bool get getLogin{
     return _sharedPreferences!.getBool(Constants.login) ?? false;
   }
 
-  void setUserId(String userId){
+  static setUserId(String userId){
     _sharedPreferences!.setString(Constants.userID, userId);
   }
 
-  String getUserId(){
+  static String getUserId(){
     return _sharedPreferences!.getString(Constants.userID) ?? '';
   }
 }

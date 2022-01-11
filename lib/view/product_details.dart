@@ -1,5 +1,9 @@
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_plus/provider/product_provider.dart';
+import 'package:grocery_plus/util/helper.dart';
+import 'package:grocery_plus/util/shared_pref.dart';
+import 'package:grocery_plus/view/authentication_screen.dart';
 import 'package:page_view_indicators/circle_page_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +30,7 @@ class MainScreen extends StatefulWidget {
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with Helper{
 
   final currentPageNotifier = ValueNotifier<int>(0);
   var itemCount = 1;
@@ -45,14 +49,16 @@ class _MainScreenState extends State<MainScreen> {
     return Consumer<ProductProvider>(
       builder: (context, provider, child){
         return Scaffold(
-          appBar: PreferredSize(preferredSize: const Size.fromHeight(0),child: AppBar(backgroundColor: Colors.green,)),
+          appBar: PreferredSize(preferredSize: const Size.fromHeight(0),child: AppBar(backgroundColor: Colors.green)),
           bottomNavigationBar: InkWell(
-            onTap: () => print('Click Here to Add to Cart'),
+            onTap: () => SharedPref.getLogin 
+             ? showSnackbar(context,'Add Item to Cart')
+             : Navigator.push(context,MaterialPageRoute(builder: (context) => const AuthenticationScreen())),
             child: Container(
               height: 50,
               color: Colors.deepOrange,
               child: const Center(child: Text('Add to Cart',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.white)))
-            ),
+            )
           ),
           body: CustomScrollView(
             slivers: [
@@ -62,6 +68,19 @@ class _MainScreenState extends State<MainScreen> {
                 floating: true,
                 snap: true,
                 leading: IconButton(onPressed: () => Navigator.pop(context),icon: const Icon(Icons.arrow_back,color:Colors.black)),
+                actions: [
+                  IconButton(
+                    onPressed: SharedPref.getLogin ? () => showSnackbar(context, 'You Click on the Badge') : null,
+                    icon: SharedPref.getLogin
+                      ? Badge(
+                          badgeColor: Colors.red,
+                          position: const BadgePosition(start: 10, bottom: 8.0),
+                          badgeContent: const Text('2',style: TextStyle(color: Colors.white,fontSize: 12)),
+                          child: const Icon(Icons.shopping_cart,color: Colors.black),
+                        )
+                      : const SizedBox()
+                  )
+                ]
               ),
               provider.loading
               ? const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
@@ -101,7 +120,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: CirclePageIndicator(
                   itemCount: 1,
                   currentPageNotifier: currentPageNotifier,
-                ),
+                )
               )
             ]
           ),
@@ -116,7 +135,7 @@ class _MainScreenState extends State<MainScreen> {
                     color: Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.bold
-                  ),
+                  )
                 ),
                 const SizedBox(height: 15),
                 Row(
@@ -167,7 +186,7 @@ class _MainScreenState extends State<MainScreen> {
                             child: const Icon(Icons.add,size: 22),
                           )
                         )
-                      ],
+                      ]
                     )
                   ]
                 ),
@@ -218,7 +237,7 @@ class _MainScreenState extends State<MainScreen> {
                       const SizedBox(width: 10),
                       Expanded(child: Text(provider.commonProduct == null ? '' : provider.commonProduct!.description,style: const TextStyle(fontSize: 12,color: Color.fromARGB(255, 100, 100, 100))))
                     ]
-                  ),
+                  )
                 )
               ]
             )
@@ -282,14 +301,14 @@ class _MainScreenState extends State<MainScreen> {
                       )
                     ]
                   )
-                ),
+                )
               );
             },
             separatorBuilder: (context,index) => Divider(height: 1,thickness: 1,color: Colors.grey[300]), 
             itemCount: provider.listCommonProduct.length
           )
         ]
-      ),
+      )
     );
   }
 
