@@ -4,8 +4,6 @@ import 'package:grocery_plus/provider/grocery_home_provider.dart';
 import 'package:grocery_plus/util/dialog_close_button.dart';
 import 'package:grocery_plus/util/home_loading.dart';
 import 'package:grocery_plus/view/notification_screen.dart';
-import 'package:grocery_plus/view/product_details.dart';
-import 'package:grocery_plus/util/helper.dart';
 import 'package:grocery_plus/view/product_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -30,12 +28,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
 
   @override
-  void initState() {
+  void didChangeDependencies() {
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp){
       var provider = Provider.of<GroceryHomePovider>(context,listen: false);
-      provider.getProducts('veg');
+      provider.getProducts(context,'veg');
     });
-    super.initState();
+    super.didChangeDependencies();
   }
 
   @override
@@ -66,12 +64,12 @@ class _MainScreenState extends State<MainScreen> {
                         child: Icon(Icons.location_pin,color: Colors.white,size: 22),
                         backgroundColor: Colors.green
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 8),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text('Your Location',style: TextStyle(fontSize: 12, color: Colors.grey)),
-                          Text('Wali Ganj, Arrah, Arrah Town',style: TextStyle(color: Colors.black,fontSize: 14))
+                        children: [
+                          const Text('Your Location',style: TextStyle(fontSize: 11, color: Colors.grey)),
+                          Text(provider.userLocation,style: const TextStyle(color: Colors.black,fontSize: 12))
                         ]
                       )
                     ]
