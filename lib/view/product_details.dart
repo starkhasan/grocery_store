@@ -1,56 +1,79 @@
 import 'package:flutter/material.dart';
+import 'package:grocery_plus/provider/product_provider.dart';
 import 'package:page_view_indicators/circle_page_indicator.dart';
+import 'package:provider/provider.dart';
 
-class ProductDetails extends StatefulWidget {
-  final String imagePath;
-  final String productDetails;
+class ProductDetails extends StatelessWidget {
   final String productId;
-  const ProductDetails({ Key? key,required this.imagePath,required this.productDetails,required this.productId}) : super(key: key);
-
-  @override
-  _ProductDetailsState createState() => _ProductDetailsState();
-}
-
-class _ProductDetailsState extends State<ProductDetails> {
-
-  final currentPageNotifier = ValueNotifier<int>(0);
-  var itemCount = 1;
-  var listImageURL = [
-    'https://m.media-amazon.com/images/I/91pDdDLHquL._SX522_.jpg',
-    'https://www.bigbasket.com/media/uploads/p/xxl/40198145_1-popular-essentials-premium-jeera-rice.jpg',
-    'https://m.media-amazon.com/images/I/71LpBnx+5xL._SL1500_.jpg',
-    'https://m.media-amazon.com/images/I/71bSLxCaGGL._SL1500_.jpg',
-    'https://www.jiomart.com/images/product/original/490001392/amul-butter-500-g-carton-6-20210315.jpg'
-  ];
+  final String subProductId;
+  const ProductDetails({ Key? key,required this.productId,required this.subProductId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(preferredSize: const Size.fromHeight(0),child: AppBar(backgroundColor: Colors.green,)),
-      bottomNavigationBar: InkWell(
-        onTap: () => print('Click Here to Add to Cart'),
-        child: Container(
-          height: 50,
-          color: Colors.deepOrange,
-          child: const Center(child: Text('Add to Cart',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.white)))
-        ),
-      ),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            title: const Text('Product Details',style: TextStyle(color: Colors.black,fontSize: 14)),
-            backgroundColor: Colors.white,
-            floating: true,
-            snap: true,
-            leading: IconButton(onPressed: () => Navigator.pop(context),icon: const Icon(Icons.arrow_back,color:Colors.black)),
+    return ChangeNotifierProvider<ProductProvider>(
+      create: (context) => ProductProvider(),
+      child: MainScreen(id: productId,productId: subProductId),
+    );
+  }
+}
+
+class MainScreen extends StatefulWidget {
+  final String id;
+  final String productId;
+  const MainScreen({ Key? key,required this.id, required this.productId}) : super(key: key);
+
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+
+  final currentPageNotifier = ValueNotifier<int>(0);
+  var itemCount = 1;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      var provider = Provider.of<ProductProvider>(context,listen: false);
+      provider.getCommonProducts(widget.id, widget.productId);
+    });
+    super.initState();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ProductProvider>(
+      builder: (context, provider, child){
+        return Scaffold(
+          appBar: PreferredSize(preferredSize: const Size.fromHeight(0),child: AppBar(backgroundColor: Colors.green,)),
+          bottomNavigationBar: InkWell(
+            onTap: () => print('Click Here to Add to Cart'),
+            child: Container(
+              height: 50,
+              color: Colors.deepOrange,
+              child: const Center(child: Text('Add to Cart',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.white)))
+            ),
           ),
-          SliverList(delegate: SliverChildListDelegate([mainBody()]))
-        ],
-      ),
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                title: const Text('Product Details',style: TextStyle(color: Colors.black,fontSize: 14)),
+                backgroundColor: Colors.white,
+                floating: true,
+                snap: true,
+                leading: IconButton(onPressed: () => Navigator.pop(context),icon: const Icon(Icons.arrow_back,color:Colors.black)),
+              ),
+              provider.loading
+              ? const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+              : SliverList(delegate: SliverChildListDelegate([mainBody(provider)]))
+            ]
+          )
+        );
+      }
     );
   }
 
-  Widget mainBody(){
+  Widget mainBody(ProductProvider provider){
     return Container(
       color: Colors.white,
       child: Column(
@@ -61,8 +84,13 @@ class _ProductDetailsState extends State<ProductDetails> {
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.30,
                 child: PageView.builder(
-                  itemCount: listImageURL.length,
-                  itemBuilder: (BuildContext contex,int index) => Container(color: Colors.transparent,child: Image.network(listImageURL[index])),
+                  itemCount: 1,
+                  itemBuilder: (BuildContext contex,int index) {
+                    return Container(
+                      color: Colors.transparent,
+                      child: provider.commonProduct == null ? const CircularProgressIndicator() : Image.network(provider.commonProduct!.imageUrl)
+                    );
+                  },
                   onPageChanged: (int index) {
                     currentPageNotifier.value = index;
                   }
@@ -71,7 +99,7 @@ class _ProductDetailsState extends State<ProductDetails> {
               Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: CirclePageIndicator(
-                  itemCount: listImageURL.length,
+                  itemCount: 1,
                   currentPageNotifier: currentPageNotifier,
                 ),
               )
@@ -82,9 +110,9 @@ class _ProductDetailsState extends State<ProductDetails> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Aashirvaad Whole Wheat Atta 10 kg',
-                  style: TextStyle(
+                Text(
+                  provider.commonProduct == null ? '' : provider.commonProduct!.name,
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.bold
@@ -96,16 +124,23 @@ class _ProductDetailsState extends State<ProductDetails> {
                   children: [
                     Row(
                       children: [
-                        const Text('\u{20B9}300',style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.bold)),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(text: provider.commonProduct == null ? '' : '\u{20B9}${provider.commonProduct!.price}',style: const TextStyle(fontSize: 20,color: Colors.black,fontWeight: FontWeight.bold)),
+                              const TextSpan(text: '/ Kg',style: TextStyle(fontSize: 12,color: Colors.black,fontWeight: FontWeight.normal))
+                            ]
+                          )
+                        ),
                         const SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.only(left: 5,top: 2,right: 5,bottom: 2),
                           decoration: BoxDecoration(color:Colors.green[800],borderRadius: const BorderRadius.all(Radius.circular(2))),
                           child: Row(
-                            children: const [
-                              Text('4.5',style: TextStyle(color: Colors.white)),
-                              SizedBox(width: 5),
-                              Icon(Icons.star,size: 14,color: Colors.white)
+                            children: [
+                              Text(provider.commonProduct == null ? '' : provider.commonProduct!.rating,style: const TextStyle(color: Colors.white)),
+                              const SizedBox(width: 5),
+                              const Icon(Icons.star,size: 14,color: Colors.white)
                             ]
                           )
                         )
@@ -143,9 +178,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('Manufactured date 02 Nov 2021',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
-                        Text('Best Before 29 July 2022',style: TextStyle(color: Color.fromARGB(255, 107, 107, 107),fontSize: 11))
+                      children: [
+                        Text(provider.commonProduct == null ? '' : 'Manufactured date ${provider.commonProduct!.dop}',style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 12)),
+                        Text(provider.commonProduct == null ? '' : 'Best Before ${provider.commonProduct!.doe}',style: const TextStyle(color: Color.fromARGB(255, 107, 107, 107),fontSize: 11))
                       ]
                     )
                   ]
@@ -178,10 +213,10 @@ class _ProductDetailsState extends State<ProductDetails> {
                   padding: const EdgeInsets.only(top: 10,bottom: 10,right: 5),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Description'),
-                      SizedBox(width: 10),
-                      Expanded(child: Text("If you are interested in getting home a double-door fridge, this LG convertible refrigerator should feature on your list. The Inverter Linear Compressor of this refrigerator moderates the internal temperatures across the fridge and makes it highly energy-efficient."))
+                    children: [
+                      const Text('Description'),
+                      const SizedBox(width: 10),
+                      Expanded(child: Text(provider.commonProduct == null ? '' : provider.commonProduct!.description,style: const TextStyle(fontSize: 12,color: Color.fromARGB(255, 100, 100, 100))))
                     ]
                   ),
                 )
@@ -198,50 +233,60 @@ class _ProductDetailsState extends State<ProductDetails> {
             physics: const NeverScrollableScrollPhysics(),
             padding: const EdgeInsets.only(left: 20,top: 15),
             itemBuilder: (BuildContext context,int index){
-              return Container(
-                padding: const EdgeInsets.only(top: 10,bottom: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.30,
-                      child: Image.network(listImageURL[index]),
-                    ),
-                    const SizedBox(width: 10), 
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Aashirvaad Whole Wheat Atta 10 kg',style: TextStyle(fontSize: 14)),
-                          const SizedBox(height: 5),
-                          const Text('\u{20B9}180',style: TextStyle(fontSize: 14,color: Colors.grey,fontWeight: FontWeight.normal,decoration: TextDecoration.lineThrough)),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Text('\u{20B9}300',style: TextStyle(fontSize: 14,color: Colors.black,fontWeight: FontWeight.bold)),
-                              const SizedBox(width: 10),
-                              Container(
-                                padding: const EdgeInsets.only(left: 5,top: 2,right: 5,bottom: 2),
-                                decoration: BoxDecoration(color:Colors.green[800],borderRadius: const BorderRadius.all(Radius.circular(2))),
-                                child: Row(
-                                  children: const [
-                                    Text('4.5',style: TextStyle(color: Colors.white,fontSize: 12)),
-                                    SizedBox(width: 4),
-                                    Icon(Icons.star,size: 14,color: Colors.white)
-                                  ]
-                                )
-                              )
-                            ]
-                          )
-                        ]
+              return GestureDetector(
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetails(productId: widget.id,subProductId: provider.listCommonProduct[index].id))),
+                child: Container(
+                  padding: const EdgeInsets.only(top: 10,bottom: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.30,
+                        child: Image.network(provider.listCommonProduct[index].imageUrl),
                       ),
-                    )
-                  ]
-                )
+                      const SizedBox(width: 10), 
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(provider.listCommonProduct[index].name,style: const TextStyle(fontSize: 14)),
+                            const SizedBox(height: 5),
+                            Text('\u{20B9}${int.parse(provider.listCommonProduct[index].price) + 40}',style: const TextStyle(fontSize: 14,color: Colors.grey,fontWeight: FontWeight.normal,decoration: TextDecoration.lineThrough)),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      TextSpan(text: '\u{20B9}${provider.listCommonProduct[index].price}',style: const TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.bold)),
+                                      const TextSpan(text: '/ Kg',style: TextStyle(fontSize: 12,color: Colors.black,fontWeight: FontWeight.normal))
+                                    ]
+                                  )
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  padding: const EdgeInsets.only(left: 5,top: 2,right: 5,bottom: 2),
+                                  decoration: BoxDecoration(color:Colors.green[800],borderRadius: const BorderRadius.all(Radius.circular(2))),
+                                  child: Row(
+                                    children: [
+                                      Text(provider.listCommonProduct[index].rating,style: const TextStyle(color: Colors.white,fontSize: 12)),
+                                      const SizedBox(width: 4),
+                                      const Icon(Icons.star,size: 14,color: Colors.white)
+                                    ]
+                                  )
+                                )
+                              ]
+                            )
+                          ]
+                        )
+                      )
+                    ]
+                  )
+                ),
               );
             },
             separatorBuilder: (context,index) => Divider(height: 1,thickness: 1,color: Colors.grey[300]), 
-            itemCount: listImageURL.length
+            itemCount: provider.listCommonProduct.length
           )
         ]
       ),

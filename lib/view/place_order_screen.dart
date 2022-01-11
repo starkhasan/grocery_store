@@ -64,7 +64,7 @@ class _PlaceOrderScreenState extends State<PlaceOrderScreen> {
             padding: const EdgeInsets.only(top: 15),
             itemBuilder: (BuildContext context,int index){
               return InkWell(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetails(imagePath: listImageURL[index], productDetails: 'Nothing', productId: '10'))),
+                //onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetails(imagePath: listImageURL[index], productDetails: 'Nothing', productId: '10'))),
                 child: Container(
                   padding: const EdgeInsets.only(top: 10,bottom: 10),
                   child: Row(
