@@ -17,6 +17,15 @@ mixin Helper {
   }
 
 
+  bool validateEmail(String email){
+    var regExp = RegExp(r'^(([a-zA-Z0-9_\.\-]*)@([a-zA-Z0-9]+)\.([a-zA-Z0-9]{2,5}))$');
+    if(regExp.hasMatch(email)){
+      return true;
+    }
+    return false;
+  }
+
+
   var groceryMoreItems = ['My Account','My Wishlist','Saved Addresses','All Orders','My Rewards'];
 
 }

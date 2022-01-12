@@ -10,6 +10,22 @@ class SharedPref {
     return _sharedPreferences;
   }
 
+  static setUserEmail(String email){
+    _sharedPreferences!.setString(Constants.useEmail, email);
+  }
+
+  static String getUserEmail(){
+    return _sharedPreferences!.getString(Constants.useEmail) ?? '';
+  }
+
+  static setUserName(String name){
+    _sharedPreferences!.setString(Constants.userName, name);
+  }
+
+  static String getUserName(){
+    return _sharedPreferences!.getString(Constants.userName) ?? '';
+  }
+
   static setLogin(bool isLogin){
     _sharedPreferences!.setBool(Constants.login, isLogin);
   }
