@@ -53,7 +53,9 @@ class _MainScreenState extends State<MainScreen> with Helper{
           bottomNavigationBar: InkWell(
             onTap: () => SharedPref.getLogin 
              ? showSnackbar(context,'Add Item to Cart')
-             : Navigator.push(context,MaterialPageRoute(builder: (context) => const AuthenticationScreen())),
+             : Navigator.push(context,MaterialPageRoute(builder: (context) => const AuthenticationScreen())).then((value) {
+                if(value) provider.getCommonProducts(widget.id, widget.productId);
+             }),
             child: Container(
               height: 50,
               color: Colors.deepOrange,

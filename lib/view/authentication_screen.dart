@@ -134,9 +134,7 @@ class _SigninState extends State<Signin> with Helper{
           onTap: () async{
             await widget.provider.userAuthenticate(true, context, '', emailCont.text, passwordCont.text);
             if(SharedPref.getLogin){
-              print('User Login Successfully');
-            }else{
-              print('User Authentication Failed');
+              Navigator.pop(context,true);
             }
           },
           child: Container(
@@ -214,9 +212,7 @@ class _SignupState extends State<Signup> with Helper{
           onTap: () async{
             await widget.provider.userAuthenticate(false, context, nameCont.text, emailCont.text, passwordCont.text);
             if(SharedPref.getLogin){
-              print('User Signup Successfully');
-            }else{
-              print('Authentication failed');
+              Navigator.pop(context,true);
             }
           },
           child: Container(

@@ -23,7 +23,13 @@ class AuthenticationProvider extends ChangeNotifier with Helper {
         SharedPref.setUserEmail(email);
         SharedPref.setLogin(true);
         SharedPref.setUserId(userCredential!.user!.uid);
-        if(!isLogin) firestore.collection(userCredential!.user!.uid).doc('details').set({'name':name,'email': email});
+        if(!isLogin) {
+          var collection = firestore.collection(userCredential!.user!.uid);
+          var batch = FirebaseFirestore.instance.batch();
+          batch.set(collection.doc('details'), {'name':name,'email': email});
+          batch.set(collection.doc('cart'), {'enable': true});
+          batch.commit();
+        }
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           showSnackbar(_context,'The password provided is too weak.');
